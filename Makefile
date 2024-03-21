@@ -3,7 +3,7 @@ include Makefile.config
 LIBRARY_SOURCES=$(wildcard library/*.c)
 LIBRARY_HEADERS=$(wildcard library/*.h)
 USER_SOURCES=$(wildcard user/*.c)
-USER_PROGRAMS=$(USER_SOURCES:user/%.c=user/%.exe)
+USER_PROGRAMS=$(USER_SOURCES:c=exe)
 KERNEL_SOURCES=$(wildcard kernel/*.[chS])
 WORDS=/usr/share/dict/words
 
@@ -25,8 +25,8 @@ kernel/basekernel.img: $(KERNEL_SOURCES) $(LIBRARY_HEADERS)
 library/baselib.a: $(LIBRARY_SOURCES) $(LIBRARY_HEADERS)
 	cd library && make
 
-$(USER_PROGRAMS): $(USER_SOURCES) library/baselib.a $(LIBRARY_HEADERS)
-	cd user && make process1.exe process2.exe process3.exe process4.exe process5.exe schedulertest.exe
+$(USER_PROGRAMS): $(USER_`SOURCES) library/baselib.a $(LIBRARY_HEADERS)
+	cd user && make
 
 image: kernel/basekernel.img $(USER_PROGRAMS)
 	rm -rf image
