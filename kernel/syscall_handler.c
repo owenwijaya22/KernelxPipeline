@@ -50,12 +50,13 @@ greater indiciates success, and return of less than zero
 indicates an error and the reason.
 */
 
-int atoi(char* str)
+int atoi(const char *str)
 {
     int res = 0;
     int sign = 1;
     int i = 0;
-    if (str[0] == '-') {
+    if (str[0] == '-')
+    {
         sign = -1;
         i++;
     }
@@ -63,6 +64,7 @@ int atoi(char* str)
         res = res * 10 + str[i] - '0';
     return sign * res;
 }
+
 
 int sys_debug(const char *str)
 {

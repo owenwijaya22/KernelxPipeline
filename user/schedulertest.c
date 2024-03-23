@@ -60,13 +60,14 @@ void launch_process(const char *exec, int priority) {
         if (pid > 0) {
             printf("Started process %d\n", pid);
         } else {
-            printf("Couldn't run %s: %s\n", exec, strerror(pid));
+            printf("Couldn't run %s: Error %d\n", exec, pid);
         }
         syscall_object_close(pfd);
     } else {
-        printf("Couldn't find %s: %s\n", exec, strerror(pfd));
+        printf("Couldn't find %s: Error %d\n", exec, pfd);
     }
 }
+
 
 int main(const char *argv[], int argc) {
     launch_process("bin/process1.exe", 9);
