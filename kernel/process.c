@@ -27,14 +27,14 @@ struct process *process_table[PROCESS_MAX_PID] = { 0 };
 
 void process_init()
 {
-	current = process_create(0);
+    current = process_create(); // Assign a default priority of 0 to the first process
 
-	pagetable_load(current->pagetable);
-	pagetable_enable();
+    pagetable_load(current->pagetable);
+    pagetable_enable();
 
-	current->state = PROCESS_STATE_READY;
+    current->state = PROCESS_STATE_READY;
 
-	current->waiting_for_child_pid = 0;
+    current->waiting_for_child_pid = 0;
 }
 
 void process_kstack_reset(struct process *p, unsigned entry_point)
@@ -188,11 +188,11 @@ void process_stack_reset(struct process *p, unsigned size)
 	memset((void *) -size, size, 0);
 }
 
-struct process *process_create(int priority) {
+struct process *process_create()
+{
 	struct process *p;
-	p->priority = priority;
-	p = page_alloc(1);
 
+	p = page_alloc(1);
 	p->pid = process_allocate_pid();
 	process_table[p->pid] = p;
 
@@ -236,73 +236,75 @@ void process_delete(struct process *p)
 	process_table[p->pid] = 0;
 }
 
-void process_launch(struct process *p) {
-    struct process *curr = (struct process *)ready_list.head;
-    
-    if (!curr || p->priority < curr->priority) {
-        list_push_head(&ready_list, &p->node);
-    } else {
-        while (curr->node.next && ((struct process *)curr->node.next)->priority <= p->priority) {
-            curr = (struct process *)curr->node.next;
-        }
-        list_insert_after(&curr->node, &p->node);
-    }
+void process_launch(struct process *p)
+{
+	list_push_tail(&ready_list, &p->node);
 }
 
 static void process_switch(int newstate)
 {
-	interrupt_block();
+    interrupt_block();
 
-	if(current) {
-		if(current->state != PROCESS_STATE_CRADLE) {
-			asm("pushl %ebp");
-			asm("pushl %edi");
-			asm("pushl %esi");
-			asm("pushl %edx");
-			asm("pushl %ecx");
-			asm("pushl %ebx");
-			asm("pushl %eax");
-		      asm("movl %%esp, %0":"=r"(current->kstack_ptr));
-		}
+    if(current) {
+        if(current->state != PROCESS_STATE_CRADLE) {
+            asm("pushl %ebp");
+            asm("pushl %edi");
+            asm("pushl %esi");
+            asm("pushl %edx");
+            asm("pushl %ecx");
+            asm("pushl %ebx");
+            asm("pushl %eax");
+            asm("movl %%esp, %0":"=r"(current->kstack_ptr));
+        }
 
-		interrupt_stack_pointer = (void *) INTERRUPT_STACK_TOP;
-		current->state = newstate;
+        interrupt_stack_pointer = (void *) INTERRUPT_STACK_TOP;
+        current->state = newstate;
 
-		if(newstate == PROCESS_STATE_READY) {
-			list_push_tail(&ready_list, &current->node);
-		}
-		if(newstate == PROCESS_STATE_GRAVE) {
-			list_push_tail(&grave_list, &current->node);
-		}
-	}
+        if(newstate == PROCESS_STATE_READY) {
+            list_push_tail(&ready_list, &current->node);
+        }
+        if(newstate == PROCESS_STATE_GRAVE) {
+            list_push_tail(&grave_list, &current->node);
+        }
+    }
 
-	current = 0;
+    current = 0;
 
-	while(1) {
-		current = (struct process *) list_pop_head(&ready_list);
-		if(current)
-			break;
+    while(1) {
+        struct process *highest_priority_process = 0;
+        struct process *p = (struct process *) ready_list.head;
+        while (p) {
+            if (!highest_priority_process || p->priority < highest_priority_process->priority) {
+                highest_priority_process = p;
+            }
+            p = (struct process *) p->node.next;
+        }
+        current = highest_priority_process;
+        if (current) {
+            list_remove(&current->node);
+            break;
+        }
 
-		interrupt_unblock();
-		interrupt_wait();
-		interrupt_block();
-	}
+        interrupt_unblock();
+        interrupt_wait();
+        interrupt_block();
+    }
 
-	current->state = PROCESS_STATE_RUNNING;
-	interrupt_stack_pointer = current->kstack_top;
+    current->state = PROCESS_STATE_RUNNING;
+    interrupt_stack_pointer = current->kstack_top;
 
-	asm("movl %0, %%cr3"::"r"(current->pagetable));
-	asm("movl %0, %%esp"::"r"(current->kstack_ptr));
+    asm("movl %0, %%cr3"::"r"(current->pagetable));
+    asm("movl %0, %%esp"::"r"(current->kstack_ptr));
 
-	asm("popl %eax");
-	asm("popl %ebx");
-	asm("popl %ecx");
-	asm("popl %edx");
-	asm("popl %esi");
-	asm("popl %edi");
-	asm("popl %ebp");
+    asm("popl %eax");
+    asm("popl %ebx");
+    asm("popl %ecx");
+    asm("popl %edx");
+    asm("popl %esi");
+    asm("popl %edi");
+    asm("popl %ebp");
 
-	interrupt_unblock();
+    interrupt_unblock();
 }
 
 int allow_preempt = 0;

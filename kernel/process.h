@@ -1,3 +1,9 @@
+/*
+Copyright (C) 2015-2019 The University of Notre Dame
+This software is distributed under the GNU General Public License.
+See the file LICENSE for details.
+*/
+
 #ifndef PROCESS_H
 #define PROCESS_H
 
@@ -8,7 +14,6 @@
 #include "kobject.h"
 #include "x86.h"
 #include "fs.h"
-#include "list.h"
 
 #define PROCESS_STATE_CRADLE  0
 #define PROCESS_STATE_READY   1
@@ -43,7 +48,7 @@ struct process {
 
 void process_init();
 
-struct process *process_create(int priority);
+struct process *process_create();
 void process_delete(struct process *p);
 void list_insert_after(struct list_node *node, struct list_node *new_node);
 void process_launch(struct process *p);
