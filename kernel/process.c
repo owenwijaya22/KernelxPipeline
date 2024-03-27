@@ -196,6 +196,7 @@ struct process *process_create()
 	p->pid = process_allocate_pid();
 	process_table[p->pid] = p;
 
+
 	p->pagetable = pagetable_create();
 	pagetable_init(p->pagetable);
 

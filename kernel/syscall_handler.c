@@ -49,17 +49,19 @@ For all of these system calls, a return value of zero or
 greater indiciates success, and return of less than zero
 indicates an error and the reason.
 */
-int atoi(const char *str) {
-    int res = 0;
-    int sign = 1;
-    int i = 0;
-    if (str[0] == '-') {
-        sign = -1;
-        i++;
+
+int strtoint(const char *s, int *d)
+{
+    int val = 0;
+    for (; *s; ++s) {
+        val *= 10;
+        if (*s > '9' || *s < '0') {
+            return 0;
+        }
+        val += (*s - '0');
     }
-    for (; str[i] != '\0'; ++i)
-        res = res * 10 + str[i] - '0';
-    return sign * res;
+    *d = val;
+    return 1;
 }
 
 int sys_debug(const char *str)
@@ -110,7 +112,6 @@ process_run() creates a child process in a more efficient
 way than fork/exec by creating the child without duplicating
 the memory state, then loading
 */
-
 int sys_process_run( int fd, int argc, const char **argv)
 {
 	if(!is_valid_object_type(fd,KOBJECT_FILE)) return KERROR_INVALID_OBJECT;
@@ -120,9 +121,20 @@ int sys_process_run( int fd, int argc, const char **argv)
 	/* Copy argv into kernel memory. */
 	char **copy_argv = argv_copy(argc, argv);
 
+	int priority;
+	if (argc > 1)
+	{
+		if (!strtoint(copy_argv[1], &priority)) {
+            argv_delete(argc, copy_argv);
+            return -1;
+        }
+	}
+	else
+	{
+		priority = -1;  // Default priority if not provided
+	}
 	/* Create the child process */
 	struct process *p = process_create();
-	p->priority = atoi(copy_argv[1]);
 	process_inherit(current, p);
 
 	/* SWITCH TO ADDRESS SPACE OF CHILD PROCESS */
@@ -156,10 +168,58 @@ int sys_process_run( int fd, int argc, const char **argv)
 	}
 
 	/* Otherwise, launch the new child process. */
-	// process_launch(p);
-	process_priority_queue_insert(p);
+	process_launch(p);
 	return p->pid;
 }
+// int sys_process_run( int fd, int argc, const char **argv)
+// {
+// 	if(!is_valid_object_type(fd,KOBJECT_FILE)) return KERROR_INVALID_OBJECT;
+
+// 	struct kobject *k = current->ktable[fd];
+
+// 	/* Copy argv into kernel memory. */
+// 	char **copy_argv = argv_copy(argc, argv);
+
+// 	/* Create the child process */
+// 	struct process *p = process_create();
+// 	p->priority = atoi(copy_argv[1]);
+// 	process_inherit(current, p);
+
+// 	/* SWITCH TO ADDRESS SPACE OF CHILD PROCESS */
+// 	struct pagetable *old_pagetable = current->pagetable;
+// 	current->pagetable = p->pagetable;
+// 	pagetable_load(p->pagetable);
+
+// 	/* Attempt to load the program image. */
+// 	addr_t entry;
+// 	int r = elf_load(p, k->data.file, &entry);
+// 	if(r >= 0) {
+// 		/* If load succeeded, reset stack and pass arguments */
+// 		process_stack_reset(p, PAGE_SIZE);
+// 		process_kstack_reset(p, entry);
+// 		process_pass_arguments(p, argc, copy_argv);
+// 	}
+
+// 	/* SWITCH BACK TO ADDRESS SPACE OF PARENT PROCESS */
+// 	current->pagetable = old_pagetable;
+// 	pagetable_load(old_pagetable);
+
+// 	/* Delete the argument and path copies. */
+// 	argv_delete(argc, copy_argv);
+
+// 	/* If any error happened, return in the context of the parent */
+// 	if(r < 0) {
+// 		if(r == KERROR_EXECUTION_FAILED) {
+// 			process_delete(p);
+// 		}
+// 		return r;
+// 	}
+
+// 	/* Otherwise, launch the new child process. */
+// 	// process_launch(p);
+// 	process_priority_queue_insert(p);
+// 	return p->pid;
+// }
 
 /* Function creates a child process with the standard window replaced by wd */
 int sys_process_wrun( int fd, int argc, const char **argv, int *fds, int fd_len)

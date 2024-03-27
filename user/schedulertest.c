@@ -58,7 +58,7 @@ void launch_process(const char *exec, int priority) {
     if (pfd >= 0) {
         int pid = syscall_process_run(pfd, argc, argv);
         if (pid > 0) {
-            printf("Started process %d\n", pid);
+            printf("Test process with pid: %d started\n", pid);
         } else {
             printf("Couldn't run %s: Error %d\n", exec, pid);
         }
