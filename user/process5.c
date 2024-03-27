@@ -17,8 +17,9 @@ int main(int argc, const char *argv[]) {
     const char *p = argv[1];
     const char *exe = argv[0];
 
-    printf("%s started with priority: %s\n", exe, p);
+    int pid = syscall_process_self();
+    printf("%s (pid %d) started with priority: %s\n", exe, pid, p);
     runForSeconds(5);
-    printf("%s finished with priority: %s\n", exe, p);
+    printf("%s (pid %d) finished with priority: %s\n", exe, pid, p);
     return 0;
 }

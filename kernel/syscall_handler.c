@@ -122,6 +122,7 @@ int sys_process_run( int fd, int argc, const char **argv)
 	char **copy_argv = argv_copy(argc, argv);
 
 	int priority;
+	// attempting to assign priority arg to priority int
 	if (argc > 1)
 	{
 		if (!strtoint(copy_argv[1], &priority)) {
@@ -135,6 +136,7 @@ int sys_process_run( int fd, int argc, const char **argv)
 	}
 	/* Create the child process */
 	struct process *p = process_create();
+	p -> priority = priority;
 	process_inherit(current, p);
 
 	/* SWITCH TO ADDRESS SPACE OF CHILD PROCESS */

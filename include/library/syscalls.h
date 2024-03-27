@@ -13,7 +13,6 @@ See the file LICENSE for details.
 void syscall_debug(const char *str);
 
 /* Syscalls that manipulate this process and its children. */
-
 void syscall_process_exit(int status);
 int syscall_process_yield();
 int syscall_process_run(int fd, int argc, const char **argv);
