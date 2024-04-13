@@ -20,7 +20,7 @@ void syscall_process_exit(int status)
 
 int syscall_process_yield()
 {
-	return syscall(SYSCALL_PROCESS_YIELD, 0, 0, 0, 0, 0);	
+	return syscall(SYSCALL_PROCESS_YIELD, 0, 0, 0, 0, 0);
 }
 
 int syscall_process_run(int fd, int argc, const char **argv)

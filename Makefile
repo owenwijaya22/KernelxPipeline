@@ -25,7 +25,7 @@ kernel/basekernel.img: $(KERNEL_SOURCES) $(LIBRARY_HEADERS)
 library/baselib.a: $(LIBRARY_SOURCES) $(LIBRARY_HEADERS)
 	cd library && make
 
-$(USER_PROGRAMS): $(USER_`SOURCES) library/baselib.a $(LIBRARY_HEADERS)
+$(USER_PROGRAMS): $(USER_SOURCES) library/baselib.a $(LIBRARY_HEADERS)
 	cd user && make
 
 image: kernel/basekernel.img $(USER_PROGRAMS)
