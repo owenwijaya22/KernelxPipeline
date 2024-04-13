@@ -19,7 +19,7 @@ int main(int argc, const char *argv[]) {
 
     int pid = syscall_process_self();
     printf("%s (pid %d) started with priority: %s\n", exe, pid, p);
-    runForSeconds(5);
+    runForSeconds(3);
     printf("%s (pid %d) finished with priority: %s\n", exe, pid, p);
     return 0;
 }
