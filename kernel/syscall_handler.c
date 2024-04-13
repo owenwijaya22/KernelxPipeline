@@ -120,14 +120,15 @@ int sys_process_run( int fd, int argc, const char **argv)
 
 	/* Copy argv into kernel memory. */
 	char **copy_argv = argv_copy(argc, argv);
-
+	// Initialize priority variable
 	int priority;
-	// attempting to assign priority arg to priority int
+	// Check if there are more than one argument provided
 	if (argc > 1)
 	{
+		// Attempt to convert the second argument to an integer to use as the priority
 		if (!strtoint(copy_argv[1], &priority)) {
+			// If conversion fails, clean up the argument copies and return error
             argv_delete(argc, copy_argv);
-            return -1;
         }
 	}
 	else
@@ -136,6 +137,7 @@ int sys_process_run( int fd, int argc, const char **argv)
 	}
 	/* Create the child process */
 	struct process *p = process_create();
+	// Assign the parsed or default priority to the new process's priority field
 	p -> priority = priority;
 	process_inherit(current, p);
 

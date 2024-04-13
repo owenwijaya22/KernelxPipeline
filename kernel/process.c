@@ -269,23 +269,28 @@ static void process_switch(int newstate)
         }
     }
 
+	// Reset the current process pointer
     current = 0;
-
+	// Continuously search for the highest priority process in the ready list
     while(1) {
         struct process *highest_priority_process = 0;
         struct process *p = (struct process *) ready_list.head;
+		// Iterate over all processes in the ready list to find the highest priority process
         while (p) {
+			// Update highest_priority_process if it's either unset or found a higher priority process
             if (!highest_priority_process || p->priority < highest_priority_process->priority) {
                 highest_priority_process = p;
             }
             p = (struct process *) p->node.next;
         }
+		// Set the current process to the highest priority process found
         current = highest_priority_process;
+		// If a valid process is found, remove it from the ready list and exit the loop
         if (current) {
             list_remove(&current->node);
             break;
         }
-
+		// If no valid process is found, the loop continues searching
         interrupt_unblock();
         interrupt_wait();
         interrupt_block();
