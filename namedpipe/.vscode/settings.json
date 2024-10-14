@@ -1,0 +1,29 @@
+{
+    "files.associations": {
+        "named_pipe.h": "c",
+        "kmalloc.h": "c",
+        "pipe.h": "c",
+        "__locale": "c",
+        "atomic": "c",
+        "bit": "c",
+        "cstddef": "c",
+        "ios": "c",
+        "limits": "c",
+        "locale": "c",
+        "new": "c",
+        "string": "c",
+        "variant": "c",
+        "compare": "c",
+        "type_traits": "c",
+        "charconv": "c",
+        "chrono": "c",
+        "condition_variable": "c",
+        "forward_list": "c",
+        "list": "c",
+        "optional": "c",
+        "format": "c",
+        "memory": "c",
+        "mutex": "c",
+        "functional": "c"
+    }
+}

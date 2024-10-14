@@ -1,0 +1,46 @@
+Creation and Opening: Implement the functionality for creating and opening named pipes (including setting them as FIFOs) in named_pipe.c. 
+This keeps all named pipe-specific logic in one place.
+
+System Call Interface: Use syscalls_handler.c to define system calls that user programs can invoke. 
+These system calls would use the operations defined in named_pipe.c to create or open named pipes.
+
+Kernel Object Management: After a named pipe is created or opened, kobject.c comes into play to wrap the pipe in a kernel object (kobject), 
+allowing it to be managed alongside other types of objects within the kernel. 
+This is where you'd potentially call something like kobject_create_named_pipe, which would internally manage both the filesystem aspect (via fs_dirent) 
+and the IPC mechanism (via struct pipe).
+
+
+
+Filesystem Integration: Leveraging the filesystem interface (fs.h) to create an entry that represents the named pipe. 
+This involves using functions like fs_dirent_mkfile() to create a new filesystem entry for the named pipe.
+
+IPC Mechanism: Utilizing the IPC infrastructure (pipe.c) to facilitate communication between processes. 
+This is where data sent into the named pipe by one process can be received by another.
+
+
+Recommended Implementation Strategy
+Extend struct fs_dirent or Use a Mapping: 
+Ideally, extend struct fs_dirent to include a reference to struct named_pipe. 
+If modifying struct fs_dirent is not feasible, maintain a global or thread-local mapping 
+that associates filesystem paths with struct named_pipe instances.
+
+Creating a Named Pipe:
+When named_pipe_create(const char *fname) is called, it should do more than just create a filesystem entry and a struct pipe. 
+It should ensure that there's a way to associate the newly created struct pipe with the filesystem entry, possibly by storing 
+a reference in a global mapping or by extending the filesystem structure as suggested.
+
+Opening a Named Pipe:
+The named_pipe_open(const char *fname) function should look up the struct named_pipe associated with the given path. This would involve checking the global mapping or enhanced fs_dirent structure to find the struct named_pipe that corresponds to the fname path.
+After finding the struct named_pipe, it could increment a reference count or perform other necessary initialization steps to prepare the named pipe for IPC.
+
+Reading/Writing to Named Pipes:
+Implement read/write operations that work with struct named_pipe. These operations would internally use the pipe_read and pipe_write functions provided by pipe.c to perform IPC.
+Ensure that the filesystem entry for the named pipe and the IPC mechanism are synchronized, such as by using flags or conditions to manage blocking reads/writes and to signal when data is available.
+
+Use of Flags:
+Flags like FS_FILE_READ and FS_FILE_WRITE might be used to check permissions or to indicate 
+the intended use of the named pipe (read-end or write-end) when it's opened. 
+This could involve adding additional logic to handle these flags appropriately during the named pipe's creation and opening.
+
+IPC Mechanism Cleanup:
+Implement cleanup procedures that are invoked when a named pipe is no longer in use (e.g., when all references to it are closed). This would involve deleting or closing the underlying struct pipe and removing any associations in the global mapping or enhanced fs_dirent.
