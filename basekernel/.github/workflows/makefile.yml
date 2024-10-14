@@ -1,0 +1,32 @@
+name: Basekernel Build
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Setup
+      run: sudo apt-get install -y genisoimage
+      
+    - name: Build Kernel
+      run: make build-kernel
+
+    - name: Build Standard Library
+      run: make build-library
+
+    - name: Build Userspace
+      run: make build-userspace
+
+    - name: Build CDROM Image
+      run: make build-cdrom-image
+
+     

@@ -1,0 +1,10 @@
+{
+    "files.associations": {
+        "syscall.h": "c",
+        "stdlib.h": "c",
+        "syscalls.h": "c",
+        "gfxstream.h": "c",
+        "stddef.h": "c",
+        "types.h": "c"
+    }
+}
