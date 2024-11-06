@@ -1,4 +1,4 @@
-BE SURE TO ADD CROSS COMPILER PATH FIRST BY TYPING export PATH="$PWD/cross/bin:$PATH" IN THE TERMINAL
+PLEASE PBE SURE TO ADD CROSS COMPILER PATH FIRST BY TYPING export PATH="$PWD/cross/bin:$PATH" IN THE TERMINAL
 
 For Problem 2, we used diskfs. So please do the following:
 	run "make clean" and then "make" in the Linux terminal.
