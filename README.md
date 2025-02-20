@@ -36,7 +36,7 @@ qemu-system-i386 -cdrom basekernel.iso
 
 And you should see something like this:
 
-<img src=screenshot.png align=center>
+<img src=boot.png align=center>
 
 After some initial boot messages, you will see the kernel shell prompt.
 This allows you to take some simple actions before running the first
